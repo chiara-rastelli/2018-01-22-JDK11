@@ -5,9 +5,12 @@
 package it.polito.tdp.seriea;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.seriea.model.Annata;
 import it.polito.tdp.seriea.model.Model;
+import it.polito.tdp.seriea.model.Team;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -25,7 +28,7 @@ public class SerieAController {
     private URL location;
 
     @FXML // fx:id="boxSquadra"
-    private ChoiceBox<?> boxSquadra; // Value injected by FXMLLoader
+    private ChoiceBox<Team> boxSquadra; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnSelezionaSquadra"
     private Button btnSelezionaSquadra; // Value injected by FXMLLoader
@@ -41,12 +44,29 @@ public class SerieAController {
 
     @FXML
     void doSelezionaSquadra(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	if (this.boxSquadra.getValue() == null) {
+    		this.txtResult.setText("Devi prima scegliere una squadra!\n");
+    		return;
+    	}
+    	List<Annata> listaAnnate = this.model.getPunteggiAnnate(this.boxSquadra.getValue());
+    	for (Annata a : listaAnnate) {
+    		this.txtResult.appendText(a.toString()+"\n");
+    	}
+    	this.btnTrovaAnnataOro.setDisable(false);
     }
 
     @FXML
     void doTrovaAnnataOro(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	if (this.boxSquadra.getValue() == null) {
+    		this.txtResult.setText("Devi prima scegliere una squadra!\n");
+    		return;
+    	}
+    	Integer annoBest = this.model.getAnnataVincente();
+    	Integer punteggioAnnoBest = this.model.getPunteggioAnno(annoBest);
+    	this.txtResult.appendText("La miglior annata per la squadra "+this.boxSquadra.getValue().toString()+" e' stato il "+annoBest+"\n");
+    	this.txtResult.appendText("Per quell'anno la differenza dei pesi nel grafo e' pari a: "+punteggioAnnoBest+"\n");
     }
 
     @FXML
@@ -66,6 +86,9 @@ public class SerieAController {
     
     public void setModel(Model model) {
 		this.model = model;	
+		this.boxSquadra.getItems().addAll(this.model.getAllTeams());
+		this.btnTrovaAnnataOro.setDisable(true);
+		this.btnTrovaCamminoVirtuoso.setDisable(true);
 	}
     
 }
